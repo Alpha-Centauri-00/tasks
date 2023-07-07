@@ -266,28 +266,26 @@ class Tasks:
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
 
             if confirm:
-                self.tree_view.delete(selected_item)
         
                 workbook = openpyxl.load_workbook(self.sheet_path)
                 worksheeet = workbook.active
                 search_value = values[0]
-                try:
-                    # Construct the command string
-                    command = f'schtasks /delete /tn \"{values[0]}\" /F'
+                self.tree_view.delete(selected_item)
 
-                    # Run the command using subprocess.run
+                for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
+                    if search_value in row:
+                    
+                        worksheeet.delete_rows(row_index)
+                        workbook.save(self.sheet_path)
+                messagebox.showinfo("Success", f"Task '{values[0]}' deleted successfully")
+                try:
+                    
+                    command = f'schtasks /delete /tn \"{values[0]}\" /F'
                     subprocess.run(command, shell=True, check=True)               
                 
-                    for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
-                        if search_value in row:
-                        
-                            worksheeet.delete_rows(row_index)
-                            workbook.save(self.sheet_path)
-                    messagebox.showinfo("Success", f"Task '{values[0]}' deleted successfully")
-
                 except subprocess.CalledProcessError as e:
                     # Capture and show the error message in a messagebox
-                    error_message = e.stderr  # Decode bytes to string
+                    error_message = e.stderr
                     messagebox.showinfo("Error", f"Failed to delete task '{values[0]}': {error_message}")
         return
 
