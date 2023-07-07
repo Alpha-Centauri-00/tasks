@@ -21,7 +21,7 @@ class Tasks:
         self.APP_HEIGHT = 900
         self.DEFAULT_TIME = "11:00"
 
-        self.sheet_path = r"D:\PYthon\Notifi_Tasks\Excel_app GUI\db_Tasks.xlsx"
+        self.sheet_path = r"db_Tasks.xlsx"
 
         self._width = 50
         self.pad_x = 20
@@ -36,7 +36,7 @@ class Tasks:
         self.style = ttk.Style(self.root)
         
         
-        self.root.tk.call("source","Excel_app GUI\\forest-dark.tcl")
+        self.root.tk.call("source",r"forest-dark.tcl")
         self.style.theme_use("forest-dark")
         self.style.configure('TLabelframe.Label', foreground ='#00936a')
         self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
