@@ -14,7 +14,6 @@ class Tasks:
         self.root = root
         self.root.title("Tasks!")
         
-        #self.root.geometry("1500x800")
         self.TKINTER_WIDGETS = {}
         self.TKINTER_DATA = {}
         self.APP_WIDTH = 1300
@@ -28,22 +27,15 @@ class Tasks:
         self.pad_y = 10
         self.stick = "ew"
 
-        self.valuesList = []
-
-
-        
+        self.valuesList = []        
 
         self.style = ttk.Style(self.root)
-        
         
         self.root.tk.call("source",r"forest-dark.tcl")
         self.style.theme_use("forest-dark")
         self.style.configure('TLabelframe.Label', foreground ='#00936a')
         self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
         self.style.configure("Treeview.Heading", foreground="#00936a",font=('courier', 12, 'bold')) # foreground="white"
-
-
-        
 
         ## Createing a frame
         self.frame = ttk.Frame(self.root)
@@ -52,22 +44,20 @@ class Tasks:
         self.frame_compo = ttk.LabelFrame(self.frame, text="Create a Task")
         self.frame_compo.grid(row=0,column=0,padx=25,pady=25)
 
-
-        ############### Entries
-        
+        ## Create Entries
         self.title = self.create_entry_element(self.frame_compo,"label","Task Name",0,0)     ## Title Entry
         self.message = self.create_entry_element(self.frame_compo,"text","Description",1,0)    ## Message TextBox
         self.cmd = self.create_entry_element(self.frame_compo,"label","Command",3,0)   ## CMD Entry
-        
 
         self.title_  = tk.StringVar()
         self.title['textvariable'] = self.title_
         self.title_.trace_add('write', self._state)
+
         ## DATE / TIME
         self.frame_datetime_ = ttk.LabelFrame(self.frame_compo,text="Date & Time")
         self.frame_datetime_.grid(row=5,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
 
-        # Entry Date
+        ## Entry Date
         current_date_time = datetime.datetime.now().strftime('%d/%m/%Y')
 
         self.entry_date = tk.Entry(master=self.frame_datetime_,borderwidth=0,disabledbackground="#b5aeb3",justify="center")
@@ -75,7 +65,6 @@ class Tasks:
         self.entry_date.configure(state=tk.DISABLED,width=10)
         self.entry_date.grid(row=0, column=1,sticky="ewns",padx=self.pad_x,pady=self.pad_y)
 
-        
         # Entry Time
         self.entry_time = tk.Entry(master=self.frame_datetime_,borderwidth=0,disabledbackground="#b5aeb3",justify="center")
         self.entry_time.insert(0, self.DEFAULT_TIME)
@@ -86,20 +75,13 @@ class Tasks:
         self.btn_select_date_time = tk.Button(master=self.frame_datetime_, text="📅",  command=self.select_date_time,borderwidth=0,justify="center")
         self.btn_select_date_time.grid(row=0, column=3, sticky="ewns",padx=self.pad_x,pady=5)
 
-
         self.seperater = ttk.Separator(self.frame_compo)
         self.seperater.grid(row=6,column=0,padx=(20,10),pady=10,sticky="ew")
-
 
         self.btn_save_data = ttk.Button(master=self.frame_compo,text="Save",command=self.save_data,state=tk.DISABLED)
         self.btn_save_data.grid(row=8,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
 
-        ########################################################
-
-
-
-        
-
+        ## Create Table      
         self.frame_table = ttk.Frame(self.frame)
         self.frame_table.grid(row=0,column=1,padx=25,pady=25)
 
@@ -118,13 +100,8 @@ class Tasks:
         self.tree_view.column("Time",width=70,anchor="center")
         self.tree_view.column("Status",width=70,anchor="center")
         
-        
-        #self.style.configure("Treeview.Heading",)
-        
         self.tree_view.grid(row=0,column=1)
         self.scroll_bar.config(command=self.tree_view.yview)
-
-
 
         self.frame_under_table = ttk.Frame(self.frame_table)
         self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
@@ -138,22 +115,17 @@ class Tasks:
         self.delete_row_btn = ttk.Button(self.frame_under_table,text="Delete Task",command=self.delete_a_row)
         self.delete_row_btn.grid(row=0,column=2,padx=10,pady=10)
 
-        
         self.load_table()
 
-
-
     def run_task(self):
+        '''Running a Task by name'''
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
             command = f"SchTasks /run /tn \"{values[0]}\""
-            
 
-            self.run_schtask_cmd(command)
-            
+            self.run_schtask_cmd(command)         
         return
-
 
     def run_schtask_cmd(self,commando):
         try:
@@ -163,7 +135,6 @@ class Tasks:
         except subprocess.CalledProcessError as e:
             error_message = e.output.decode().strip()
             messagebox.showerror("Error!!",error_message)
-
 
     def create_task(self):
         if self.check_item_selected():
@@ -177,30 +148,21 @@ class Tasks:
             time_ = values[4]
             date_ = f" /sd {values[3]}"
 
-
             Task_Schedual_Command = text_ + '"' + title_ + '"' + text_1 + command + '"' + f" /ST {time_}" + date_
             self.run_schtask_cmd(Task_Schedual_Command)
         return
 
     def _state(self,*_):
+        '''Change btn state by just filling in the task name'''
         if self.title_.get():
             self.btn_save_data['state'] = 'normal'
         else:
             self.btn_save_data['state'] = 'disabled'
 
-        
-
     def check_item_selected(self):
         if self.tree_view.focus():
             return True
         return False
-
-
-        
-
-
-
-
 
     def check_Task_name_match(self):
         entry_text = self.title.get().lower()
@@ -210,10 +172,6 @@ class Tasks:
             if entry_text == item_value:
                 return False
         return True
-
-
-
-
 
     def save_data(self):
         if self.check_Task_name_match():
@@ -241,7 +199,6 @@ class Tasks:
         else:
             messagebox.showerror("Cant Add Task","Task name should be unique!")
         
-
     def load_table(self):
         
         path = self.sheet_path
@@ -252,13 +209,10 @@ class Tasks:
             self.tree_view.heading(col_name,text=col_name)
         for value_tuple in list_values[1:]:
             self.tree_view.insert("",tk.END,values=value_tuple)
-        
-
 
     def delete_a_row(self):
 
         '''Delete selected row'''
-        
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
@@ -277,7 +231,7 @@ class Tasks:
                     
                         worksheeet.delete_rows(row_index)
                         workbook.save(self.sheet_path)
-                messagebox.showinfo("Success", f"Task '{values[0]}' deleted successfully")
+                print(f"Task '{values[0]}' deleted successfully")
                 try:
                     
                     command = f'schtasks /delete /tn \"{values[0]}\" /F'
@@ -286,11 +240,8 @@ class Tasks:
                 except subprocess.CalledProcessError as e:
                     # Capture and show the error message in a messagebox
                     error_message = e.stderr
-                    messagebox.showinfo("Error", f"Failed to delete task '{values[0]}': {error_message}")
+                    print(error_message)
         return
-
-        
-
 
     def create_entry_element(self,parent_frame,type,text_value,row_num,col_num):
         frame_ = ttk.LabelFrame(parent_frame,text=text_value)
@@ -302,24 +253,17 @@ class Tasks:
         if type == "text":
             entry_ = tk.Text(frame_,borderwidth=0,width=self._width,height=10)
         entry_.grid(row=row_num,column=col_num,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
-        return entry_
-
-
-    
+        return entry_  
 
     def select_date_time(self):
-    
-        
+            
         # Disable Button Select EID
         self.btn_select_date_time.configure(state=tk.DISABLED)
         
         # Create Top Level Window
         self.top_level_date_time = tk.Toplevel(takefocus=True)
-
-        # Properties
         self.top_level_date_time.title("Select Date / Time")
-        # TKINTER_WIDGETS['top_level_date_time'].iconbitmap(os.path.join(IMAGES_DIRECTORY, CONFIG.get('tkinter', 'icon')))
-        
+                
         # Size
         top_level_date_time_width = 400
         top_level_date_time_height = 400
@@ -329,11 +273,8 @@ class Tasks:
 
         app_center_coordinate_x = (screen_width / 3) - (top_level_date_time_width / 2.5)
         app_center_coordinate_y = (screen_height / 3) - (top_level_date_time_height / 2.5)
-
-        # Position App to the Centre of the Screen
         self.top_level_date_time.geometry(f"{top_level_date_time_width}x{top_level_date_time_height}+{int(app_center_coordinate_x)}+{int(app_center_coordinate_y)}")
 
-        # Prevent User from Resizing the Window
         self.top_level_date_time.resizable(width=False, height=False)
 
         # Close 'X' Button
@@ -341,8 +282,6 @@ class Tasks:
 
         self.top_level_date_time.grid_rowconfigure(1, weight=1)
         self.top_level_date_time.grid_columnconfigure(0, weight=1)
-
-        # - Top Level Select Date / Time Design - #
 
         # Frame Calendar
         frame_calendar = ttk.Frame(master=self.top_level_date_time)
@@ -365,18 +304,15 @@ class Tasks:
         self.label_time =  ttk.Label(master=frame_time, text="Time")
         self.label_time.grid(row=0, column=0, padx=10, pady=10)
         
-
         # Hour Time
         self.spinbox_hours = ttk.Spinbox(frame_time, width=10, justify=tk.CENTER,from_=00,to=23, format="%02.0f")
         self.spinbox_hours.grid(row=0, column=1, padx=5)
         
-
         # Set Default Value
         self.string_var_hours = tk.StringVar()
         self.string_var_hours.set(self.DEFAULT_TIME.split(':')[0])
         self.spinbox_hours.config(textvariable=self.string_var_hours)
 
-        
         # SpinBox Minutes
         self.spinbox_minutes = ttk.Spinbox(frame_time, width=10, justify=tk.CENTER,from_=00,to=59,format="%02.0f")
         self.spinbox_minutes.grid(row=0, column=2, padx=5)
@@ -398,20 +334,14 @@ class Tasks:
     # Post Top Level Select Date Time
     def post_top_level_select_date_time(self):
         
-        
         # Destroy Top Level Date Time
         self.top_level_date_time.destroy()
-
-        # Activate Button Select Date Time
         self.btn_select_date_time.configure(state=tk.NORMAL)
-
 
     # Update Date Time
     def update_date_time(self):
         
-        # Get New Date Time Details
         new_date = self.CAL.get_date()
-        # new_time = f'{TKINTER_DATA["string_var_hours"].get()}:{TKINTER_DATA["string_var_minutes"].get()}'
         new_time = f'{self.spinbox_hours.get()}:{self.spinbox_minutes.get()}'
 
         # Destroy Top Level Widget
@@ -429,16 +359,7 @@ class Tasks:
         self.entry_time.insert(0, new_time)
         self.entry_time.configure(state=tk.DISABLED)
 
-    
-    
-
-
 
 root = tk.Tk()
-
 task = Tasks(root)
-
-
-
-
 root.mainloop()
