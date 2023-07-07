@@ -3,7 +3,7 @@ import openpyxl
 import tkinter as tk
 from tkcalendar import *
 from tkinter import ttk, messagebox
-
+import subprocess
 
 
 
@@ -21,7 +21,7 @@ class Tasks:
         self.APP_HEIGHT = 900
         self.DEFAULT_TIME = "11:00"
 
-        self.sheet_path = r"D:\PYthon\Notifi_Tasks\Excel_app GUI\people.xlsx"
+        self.sheet_path = r"D:\PYthon\Notifi_Tasks\Excel_app GUI\db_Tasks.xlsx"
 
         self._width = 50
         self.pad_x = 20
@@ -30,6 +30,8 @@ class Tasks:
 
         self.valuesList = []
 
+
+        
 
         self.style = ttk.Style(self.root)
         
@@ -40,6 +42,9 @@ class Tasks:
         self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
         self.style.configure("Treeview.Heading", foreground="#00936a",font=('courier', 12, 'bold')) # foreground="white"
 
+
+        
+
         ## Createing a frame
         self.frame = ttk.Frame(self.root)
         self.frame.pack(expand=0)
@@ -48,40 +53,20 @@ class Tasks:
         self.frame_compo.grid(row=0,column=0,padx=25,pady=25)
 
 
-        ###############
-        # frame_title = ttk.LabelFrame(self.frame_compo,text="Title")
-        # frame_title.grid(row=0,column=0,padx=self.pad_x,pady=self.pad_y)
-
+        ############### Entries
         
-        # self.Title_text = tk.Entry(frame_title,borderwidth=0,width=self._width)
-        # self.Title_text.grid(row=0,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
-            
-        # if type == "text":
-        #     entry_ = tk.Text(frame_,borderwidth=0,width=self._width,height=10)
-
-        self.title = self.create_entry_element(self.frame_compo,"label","Title",0,0)     ## Title Entry
-
-
-
-        self.message = self.create_entry_element(self.frame_compo,"text","Message",1,0)    ## Message TextBox
+        self.title = self.create_entry_element(self.frame_compo,"label","Task Name",0,0)     ## Title Entry
+        self.message = self.create_entry_element(self.frame_compo,"text","Description",1,0)    ## Message TextBox
+        self.cmd = self.create_entry_element(self.frame_compo,"label","Command",3,0)   ## CMD Entry
+        
 
         self.title_  = tk.StringVar()
         self.title['textvariable'] = self.title_
         self.title_.trace_add('write', self._state)
-        
-
-        # self.message_ = tk.StringVar()
-        # self.message['textvariable'] = self.message_
-        # self.message_.trace_add('write', self._state)
-
-        #self.link = self.create_entry_element(self.frame_compo,"label","Link",2,0)      ## Link Entry
-        self.cmd = self.create_entry_element(self.frame_compo,"label","Command",3,0)   ## CMD Entry
-
         ## DATE / TIME
         self.frame_datetime_ = ttk.LabelFrame(self.frame_compo,text="Date & Time")
         self.frame_datetime_.grid(row=5,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
 
-        ########################################################
         # Entry Date
         current_date_time = datetime.datetime.now().strftime('%d/%m/%Y')
 
@@ -100,7 +85,6 @@ class Tasks:
         # Button Select Date Time
         self.btn_select_date_time = tk.Button(master=self.frame_datetime_, text="📅",  command=self.select_date_time,borderwidth=0,justify="center")
         self.btn_select_date_time.grid(row=0, column=3, sticky="ewns",padx=self.pad_x,pady=5)
-        ########################################################
 
 
         self.seperater = ttk.Separator(self.frame_compo)
@@ -110,28 +94,93 @@ class Tasks:
         self.btn_save_data = ttk.Button(master=self.frame_compo,text="Save",command=self.save_data,state=tk.DISABLED)
         self.btn_save_data.grid(row=8,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
 
-        #☽
-        # self.theme_mode = ttk.Checkbutton(self.frame,text="\u2600",style="Switch",command=self.change_theme)
-        # self.theme_mode.grid(row=7,column=0,padx=5,pady=10,sticky="ew")
+        ########################################################
+
+
+
+        
 
         self.frame_table = ttk.Frame(self.frame)
         self.frame_table.grid(row=0,column=1,padx=25,pady=25)
 
-        self.scroll_bar = ttk.Scrollbar(self.frame_table)
-        self.scroll_bar.pack(side="right",fill="y")
+        self.frame_table_compo = ttk.LabelFrame(self.frame_table, text="Tasks Table")
+        self.frame_table_compo.grid(row=0,column=0)
 
-        self.cols = ("Title","Message","CMD","Date","Time")
-        self.tree_view = ttk.Treeview(self.frame_table,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
-        self.tree_view.column("Title",width=100)
-        self.tree_view.column("Message",width=170)
-        self.tree_view.column("Date",width=70)
-        self.tree_view.column("Time",width=50)
-        self.tree_view.pack()
+        self.scroll_bar = ttk.Scrollbar(self.frame_table_compo)
+        self.scroll_bar.grid(row=0,column=1,sticky="ns")
+
+        self.cols = ("Title","Message","CMD","Date","Time","Status")
+        self.tree_view = ttk.Treeview(self.frame_table_compo,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
+        self.tree_view.column("Title",width=100,anchor="center")
+        self.tree_view.column("Message",width=170,anchor="w")
+        self.tree_view.column("CMD",width=70,anchor="center")
+        self.tree_view.column("Date",width=70,anchor="center")
+        self.tree_view.column("Time",width=70,anchor="center")
+        self.tree_view.column("Status",width=70,anchor="center")
+        
+        
+        #self.style.configure("Treeview.Heading",)
+        
+        self.tree_view.grid(row=0,column=1)
         self.scroll_bar.config(command=self.tree_view.yview)
 
+
+
+        self.frame_under_table = ttk.Frame(self.frame_table)
+        self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
+
+        self.create_task_btn = ttk.Button(self.frame_under_table,text="Create Task",command=self.create_task)
+        self.create_task_btn.grid(row=0,column=0,padx=10,pady=10)
+
+        self.run_task_btn = ttk.Button(self.frame_under_table,text="Run Task",command=self.run_task)
+        self.run_task_btn.grid(row=0,column=1,padx=10,pady=10)
+
+        self.delete_row_btn = ttk.Button(self.frame_under_table,text="Delete Task",command=self.delete_a_row)
+        self.delete_row_btn.grid(row=0,column=2,padx=10,pady=10)
+
+        
         self.load_table()
 
 
+
+    def run_task(self):
+        if self.check_item_selected():
+            selected_item = self.tree_view.focus()
+            values = self.tree_view.item(selected_item)["values"]
+            command = f"SchTasks /run /tn \"{values[0]}\""
+            
+
+            self.run_schtask_cmd(command)
+            
+        return
+
+
+    def run_schtask_cmd(self,commando):
+        try:
+            subprocess.check_output(commando,shell=True,stderr=subprocess.STDOUT)
+            print("Done!")
+
+        except subprocess.CalledProcessError as e:
+            error_message = e.output.decode().strip()
+            messagebox.showerror("Error!!",error_message)
+
+
+    def create_task(self):
+        if self.check_item_selected():
+            selected_item = self.tree_view.focus()
+            values = self.tree_view.item(selected_item)["values"]
+            
+            text_ = 'SchTasks /Create /SC daily /TN '
+            title_ = values[0]
+            text_1 = ' /TR "cmd.exe /c '
+            command = values[2]
+            time_ = values[4]
+            date_ = f" /sd {values[3]}"
+
+
+            Task_Schedual_Command = text_ + '"' + title_ + '"' + text_1 + command + '"' + f" /ST {time_}" + date_
+            self.run_schtask_cmd(Task_Schedual_Command)
+        return
 
     def _state(self,*_):
         if self.title_.get():
@@ -140,32 +189,58 @@ class Tasks:
             self.btn_save_data['state'] = 'disabled'
 
         
-    def save_data(self):
-        title_ = self.title.get()
-        message_ = self.message.get("1.0",tk.END)
-        #link_ = self.link.get()
-        cmd_ = self.cmd.get()
-        date_ = self.entry_date.get()
-        time_ = self.entry_time.get()
-        ##  ##  ##  ##  ##  ##  ##  ##
-        path = self.sheet_path
-        workbook = openpyxl.load_workbook(path)
-        sheet = workbook.active
-        add_row_values = [title_,message_,cmd_,date_,time_]
-        sheet.append(add_row_values)
-        workbook.save(path)
-        
-        #self.load_table()
-        self.tree_view.insert('',tk.END,values=add_row_values)
-    
-        self.title.delete(0,tk.END)
-        self.message.delete("1.0", tk.END)
-        #self.link.delete(0,tk.END)
-        self.cmd.delete(0,tk.END)
 
-        # self.TKINTER_WIDGETS["link_entry"].delete(0,customtkinter.END)
-        # self.TKINTER_WIDGETS["cmd_entry"].delete(0,customtkinter.END)
-        # self.TKINTER_WIDGETS["title_entry"].focus_set()
+    def check_item_selected(self):
+        if self.tree_view.focus():
+            return True
+        return False
+
+
+        
+
+
+
+
+
+    def check_Task_name_match(self):
+        entry_text = self.title.get().lower()
+
+        for item in self.tree_view.get_children():
+            item_value = self.tree_view.item(item)["values"][0].lower()
+            if entry_text == item_value:
+                return False
+        return True
+
+
+
+
+
+    def save_data(self):
+        if self.check_Task_name_match():
+            title_ = self.title.get()
+            message_ = self.message.get("1.0",tk.END)
+            
+            cmd_ = self.cmd.get()
+            date_ = self.entry_date.get()
+            time_ = self.entry_time.get()
+            ##  ##  ##  ##  ##  ##  ##  ##
+            path = self.sheet_path
+            workbook = openpyxl.load_workbook(path)
+            sheet = workbook.active
+            add_row_values = [title_,message_,cmd_,date_,time_]
+            sheet.append(add_row_values)
+            workbook.save(path)
+            
+            #insert in tabel
+            self.tree_view.insert('',tk.END,values=add_row_values)
+        
+            #empty felds
+            self.title.delete(0,tk.END)
+            self.message.delete("1.0", tk.END)
+            self.cmd.delete(0,tk.END)
+        else:
+            messagebox.showerror("Cant Add Task","Task name should be unique!")
+        
 
     def load_table(self):
         
@@ -177,149 +252,49 @@ class Tasks:
             self.tree_view.heading(col_name,text=col_name)
         for value_tuple in list_values[1:]:
             self.tree_view.insert("",tk.END,values=value_tuple)
-        self.tree_view.bind('<1>', self.select_single_row)
-        self.tree_view.bind("<Delete>", self.delete_a_row)
-
         
-        #self.tree_view.bind('<Double-Button-1>', self.double)
-
-            
-           
-
-    def show_custom_messagebox(self,title):
-        user_choice = None
-
-        def on_yes_click():
-            nonlocal user_choice
-            user_choice = "Yes"
-            dialog.destroy()
-
-        def on_no_click():
-            nonlocal user_choice
-            user_choice = "No"
-            dialog.destroy()
-
-        # Create a custom dialog box
-        dialog = tk.Toplevel()
-        dialog.title("Confirmation")
-        dialog.geometry("300x180")
-
-        #root.tk.call("source","Excel_app GUI\\forest-dark.tcl")
-        style = ttk.Style(root)
-        style.theme_use("forest-dark")
-
-        frame_ = ttk.LabelFrame(dialog,text="Delete")
-        frame_.grid(row=0,column=0,padx=20,pady=20) #
-
-        label = ttk.Label(frame_, text=f"Delete {title}?", font=("Arial", 14,"bold"),justify="center")
-        label.grid(row=1, column=0, padx=10, pady=20)
 
 
-        
-        button_y = ttk.Button(frame_, text="Yes", command=on_yes_click)
-        button_y.grid(row=2, column=0,padx=10,pady=10)
-
-        button_n = ttk.Button(frame_, text="No", command=on_no_click)
-        button_n.grid(row=2, column=1,padx=10,pady=10)
-
-        # Make the dialog box modal (focus stays on the dialog)
-        dialog.transient(master=root)
-        dialog.grab_set()
-        root.wait_window(dialog)
-
-        # Process user_choice after the dialog is closed
-        if user_choice == "Yes":
-            return True
-        return False
-    
-
-    def delete_a_row(self,event):
+    def delete_a_row(self):
 
         '''Delete selected row'''
-        # print('delete', len(self.tree_view.selection()))
-        # if len(self.tree_view.selection()) != 0:
-        #     row = self.tree_view.selection()[0]
-        # try:
-        #     print('deleterow', row)
-        #     if messagebox.askokcancel():
-        #         print("Delete now")
-        #         self.tree_view.delete(row)
-        #         deleted_row = row[2:]
-        #         print(deleted_row)
+        # TODO Delete it also in Task Schedule
+        if self.check_item_selected():
+            selected_item = self.tree_view.focus()
+            values = self.tree_view.item(selected_item)["values"]
 
-        # except:
-        #     print('no row selected')
-        # self.load_table()
+            confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
+
+            if confirm:
+                try:
+                    # Construct the command string
+                    command = f'schtasks /delete /tn \"{values[0]}\" /F'
+
+                    # Run the command using subprocess.run
+                    subprocess.run(command, shell=True, check=True)
 
 
-        '''Delete selected row'''
-        # if len(self.tree_view.selection()) != 0:
-        #     row = self.tree_view.selection()[0]
-        #     item_values = self.tree_view.item(row)
-        #     row_identifier = item_values['values'][0]  # Assuming the row identifier is in the first column
+
+                    self.tree_view.delete(selected_item)
             
+                    workbook = openpyxl.load_workbook(self.sheet_path)
+                    worksheeet = workbook.active
+                    search_value = values[0]
+                
+                
+                    for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
+                        if search_value in row:
+                        
+                            worksheeet.delete_rows(row_index)
+                            workbook.save(self.sheet_path)
+                    messagebox.showinfo("Success", f"Task '{values[0]}' deleted successfully")
 
-        #     if messagebox.askokcancel("Confirmation", f"Are you sure you want to Delete {(item_values)['values'][0]} ?"):
-        #         self.tree_view.delete(row)
+                except subprocess.CalledProcessError as e:
+                    # Capture and show the error message in a messagebox
+                    error_message = e.stderr  # Decode bytes to string
+                    messagebox.showinfo("Error", f"Failed to delete task '{values[0]}': {error_message}")
+        return
 
-        #         # Delete row from Excel file
-        #         workbook = openpyxl.load_workbook(self.sheet_path)
-        #         worksheet = workbook.active  # Replace 'Sheet1' with the actual sheet name
-
-        #         for excel_row in worksheet.iter_rows():
-        #             if excel_row[0].value == row_identifier:  # Assuming the identifier is in the first column
-        #                 worksheet.delete_rows(excel_row[0].row)
-        #                 break  # Exit the loop after deleting the row
-
-        #         workbook.save(self.sheet_path)
-
-        # else:
-        #     print('No row selected')
-        
-        
-        #self.valuesList.append(self.tree_view.item(len(self.tree_view.get_children()),option='values'))
-        if len(self.tree_view.selection()) != 0:
-            row = self.tree_view.selection()[0]
-            item_values = self.tree_view.item(row)
-            row_identifier = item_values['values'][0]  # Assuming the row identifier is in the first column
-            
-
-            #if self.show_custom_messagebox(item_values["values"][0]):
-            if messagebox.askyesno("Confirmation",f"You are going to delete {item_values['values'][0]}"):
-                self.tree_view.delete(row)
-
-                # Delete row from Excel file
-                workbook = openpyxl.load_workbook(self.sheet_path)
-                worksheet = workbook.active  # Replace 'Sheet1' with the actual sheet name
-
-                for excel_row in worksheet.iter_rows():
-                    if excel_row[0].value == row_identifier:  # Assuming the identifier is in the first column
-                        worksheet.delete_rows(excel_row[0].row)
-                        break  # Exit the loop after deleting the row
-
-                workbook.save(self.sheet_path)
-
-        else:
-            print('No row selected')
-
-        #self.load_table()
-
-
-
-
-
-    def cell(self,event):
-        '''Identify cell from mouse position'''
-        row, col = self.tree_view.identify_row(event.y), self.tree_view.identify_column(event.x)
-        pos = self.tree_view.bbox(row, col)       # Calculate positon of entry
-        return row, col, pos
-    
-    def select_single_row(self,event=None):
-        '''Single click to select row and column'''
-        #global row, col, pos
-        row, col, pos = self.cell(event)
-        
-        print('Select', row, col,pos)
         
 
 
