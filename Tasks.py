@@ -106,7 +106,7 @@ class Tasks:
         self.frame_table_compo = ttk.LabelFrame(self.frame_table, text="Tasks Table")
         self.frame_table_compo.grid(row=0,column=0)
 
-        self.scroll_bar = ttk.Scrollbar(self.frame_table_compo)
+        self.scroll_bar = ttk.Scrollbar(self.frame_table)
         self.scroll_bar.grid(row=0,column=1,sticky="ns")
 
         self.cols = ("Title","Message","CMD","Date","Time","Status")
