@@ -258,7 +258,7 @@ class Tasks:
     def delete_a_row(self):
 
         '''Delete selected row'''
-        # TODO Delete it also in Task Schedule
+        
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
@@ -266,21 +266,17 @@ class Tasks:
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
 
             if confirm:
+                self.tree_view.delete(selected_item)
+        
+                workbook = openpyxl.load_workbook(self.sheet_path)
+                worksheeet = workbook.active
+                search_value = values[0]
                 try:
                     # Construct the command string
                     command = f'schtasks /delete /tn \"{values[0]}\" /F'
 
                     # Run the command using subprocess.run
-                    subprocess.run(command, shell=True, check=True)
-
-
-
-                    self.tree_view.delete(selected_item)
-            
-                    workbook = openpyxl.load_workbook(self.sheet_path)
-                    worksheeet = workbook.active
-                    search_value = values[0]
-                
+                    subprocess.run(command, shell=True, check=True)               
                 
                     for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
                         if search_value in row:
