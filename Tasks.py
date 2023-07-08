@@ -39,7 +39,7 @@ class Tasks:
         self.style.map("TButton",foreground=[("disabled", "#807777")])
         self.style.map("TEntry",foreground=[("disabled", "white")])
 
-        self.image = tk.PhotoImage(file=r"D:\PYthon\Notifi_Tasks\Excel_app GUI\cal.png")
+        self.image = tk.PhotoImage(file=r"cal.png")
 
         ## Createing a frame
         self.frame = ttk.Frame(self.root)
