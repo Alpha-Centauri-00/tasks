@@ -37,6 +37,7 @@ class Tasks:
         self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
         self.style.configure("Treeview.Heading", foreground="#00936a",font=('courier', 12, 'bold')) # foreground="white"
         self.style.map("TButton",foreground=[("disabled", "#807777")])
+        self.style.map("TEntry",foreground=[("disabled", "white")])
 
         self.image = tk.PhotoImage(file=r"D:\PYthon\Notifi_Tasks\Excel_app GUI\cal.png")
 
