@@ -36,13 +36,16 @@ class Tasks:
         self.style.configure('TLabelframe.Label', foreground ='#00936a')
         self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
         self.style.configure("Treeview.Heading", foreground="#00936a",font=('courier', 12, 'bold')) # foreground="white"
+        self.style.map("TButton",foreground=[("disabled", "#807777")])
+
+        self.image = tk.PhotoImage(file=r"D:\PYthon\Notifi_Tasks\Excel_app GUI\cal.png")
 
         ## Createing a frame
         self.frame = ttk.Frame(self.root)
         self.frame.pack(expand=0)
 
         self.frame_compo = ttk.LabelFrame(self.frame, text="Create a Task")
-        self.frame_compo.grid(row=0,column=0,padx=25,pady=25)
+        self.frame_compo.grid(row=0,column=0,padx=15,pady=25)
 
         ## Create Entries
         self.title = self.create_entry_element(self.frame_compo,"label","Task Name",0,0)     ## Title Entry
@@ -55,28 +58,25 @@ class Tasks:
 
         ## DATE / TIME
         self.frame_datetime_ = ttk.LabelFrame(self.frame_compo,text="Date & Time")
-        self.frame_datetime_.grid(row=5,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
+        self.frame_datetime_.grid(row=5,column=0,pady=15)
 
         ## Entry Date
         current_date_time = datetime.datetime.now().strftime('%d/%m/%Y')
 
-        self.entry_date = tk.Entry(master=self.frame_datetime_,borderwidth=0,disabledbackground="#b5aeb3",justify="center")
+        self.entry_date = ttk.Entry(master=self.frame_datetime_,justify="center")
         self.entry_date.insert(0, current_date_time)
         self.entry_date.configure(state=tk.DISABLED,width=10)
-        self.entry_date.grid(row=0, column=1,sticky="ewns",padx=self.pad_x,pady=self.pad_y)
+        self.entry_date.grid(row=0, column=1,padx=30, pady=15)
 
         # Entry Time
-        self.entry_time = tk.Entry(master=self.frame_datetime_,borderwidth=0,disabledbackground="#b5aeb3",justify="center")
+        self.entry_time = ttk.Entry(master=self.frame_datetime_,justify="center")
         self.entry_time.insert(0, self.DEFAULT_TIME)
         self.entry_time.configure(state=tk.DISABLED,width=10)
-        self.entry_time.grid(row=0, column=2,sticky="ewns",padx=self.pad_x,pady=self.pad_y)
+        self.entry_time.grid(row=0, column=2,padx=30, pady=15)
 
         # Button Select Date Time
-        self.btn_select_date_time = tk.Button(master=self.frame_datetime_, text="📅",  command=self.select_date_time,borderwidth=0,justify="center")
-        self.btn_select_date_time.grid(row=0, column=3, sticky="ewns",padx=self.pad_x,pady=5)
-
-        self.seperater = ttk.Separator(self.frame_compo)
-        self.seperater.grid(row=6,column=0,padx=(20,10),pady=10,sticky="ew")
+        self.btn_select_date_time = ttk.Button(master=self.frame_datetime_, image=self.image,  command=self.select_date_time)
+        self.btn_select_date_time.grid(row=0, column=3,padx=30, pady=15)
 
         self.btn_save_data = ttk.Button(master=self.frame_compo,text="Save",command=self.save_data,state=tk.DISABLED)
         self.btn_save_data.grid(row=8,column=0,sticky=self.stick,padx=self.pad_x,pady=self.pad_y)
