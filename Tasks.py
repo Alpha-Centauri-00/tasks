@@ -89,8 +89,7 @@ class Tasks:
         self.frame_table_compo = ttk.LabelFrame(self.frame_table, text="Tasks Table")
         self.frame_table_compo.grid(row=0,column=0)
 
-        self.scroll_bar = ttk.Scrollbar(self.frame_table)
-        self.scroll_bar.grid(row=0,column=1,sticky="ns")
+        self.scroll_bar = ttk.Scrollbar(self.frame_table_compo,orient="vertical")
 
         self.cols = ("Title","Message","CMD","Date","Time","Status")
         self.tree_view = ttk.Treeview(self.frame_table_compo,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
@@ -101,10 +100,10 @@ class Tasks:
         self.tree_view.column("Time",width=70,anchor="center")
         self.tree_view.column("Status",width=70,anchor="center")
         
-        self.tree_view.grid(row=0,column=1)
+        self.tree_view.grid(row=0,column=0,padx=20,pady=10)
         self.scroll_bar.config(command=self.tree_view.yview)
 
-        self.frame_under_table = ttk.Frame(self.frame_table)
+        self.frame_under_table = ttk.Frame(self.frame_table_compo)
         self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
 
         self.create_task_btn = ttk.Button(self.frame_under_table,text="Create Task",command=self.create_task)
