@@ -94,9 +94,9 @@ class Tasks:
         self.cols = ("Task Name","Description","CMD","Date","Time","Status")
         self.tree_view = ttk.Treeview(self.frame_table_compo,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
         self.tree_view.column("Task Name",width=100,anchor="center")
-        self.tree_view.column("Description",width=170,anchor="w")
-        self.tree_view.column("CMD",width=70,anchor="center")
-        self.tree_view.column("Date",width=70,anchor="center")
+        self.tree_view.column("Description",width=190,anchor="w")
+        self.tree_view.column("CMD",width=170,anchor="center")
+        self.tree_view.column("Date",width=170,anchor="center")
         self.tree_view.column("Time",width=70,anchor="center")
         self.tree_view.column("Status",width=70,anchor="center")
         
