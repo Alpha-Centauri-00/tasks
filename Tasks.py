@@ -106,8 +106,8 @@ class Tasks:
         self.frame_under_table = ttk.Frame(self.frame_table_compo)
         self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
 
-        self.create_task_btn = ttk.Button(self.frame_under_table,text="Create Task",command=self.create_task)
-        self.create_task_btn.grid(row=0,column=0,padx=10,pady=10)
+        # self.create_task_btn = ttk.Button(self.frame_under_table,text="Update Task",command=self.create_task)
+        # self.create_task_btn.grid(row=0,column=0,padx=10,pady=10)
 
         self.run_task_btn = ttk.Button(self.frame_under_table,text="Run Task",command=self.run_task)
         self.run_task_btn.grid(row=0,column=1,padx=10,pady=10)
@@ -136,21 +136,21 @@ class Tasks:
             error_message = e.output.decode().strip()
             messagebox.showerror("Error!!",error_message)
 
-    def create_task(self):
-        if self.check_item_selected():
-            selected_item = self.tree_view.focus()
-            values = self.tree_view.item(selected_item)["values"]
+    # def create_task(self):
+    #     if self.check_item_selected():
+    #         selected_item = self.tree_view.focus()
+    #         values = self.tree_view.item(selected_item)["values"]
             
-            text_ = 'SchTasks /Create /SC daily /TN '
-            title_ = values[0]
-            text_1 = ' /TR "cmd.exe /c '
-            command = values[2]
-            time_ = values[4]
-            date_ = f" /sd {values[3]}"
+    #         text_ = 'SchTasks /Create /SC daily /TN '
+    #         title_ = values[0]
+    #         text_1 = ' /TR "cmd.exe /c '
+    #         command = values[2]
+    #         time_ = values[4]
+    #         date_ = f" /sd {values[3]}"
 
-            Task_Schedual_Command = text_ + '"' + title_ + '"' + text_1 + command + '"' + f" /ST {time_}" + date_
-            self.run_schtask_cmd(Task_Schedual_Command)
-        return
+    #         Task_Schedual_Command = text_ + '"' + title_ + '"' + text_1 + command + '"' + f" /ST {time_}" + date_
+    #         self.run_schtask_cmd(Task_Schedual_Command)
+    #     return
 
     def _state(self,*_):
         '''Change btn state by just filling in the task name'''
@@ -191,6 +191,17 @@ class Tasks:
             
             #insert in tabel
             self.tree_view.insert('',tk.END,values=add_row_values)
+
+            # save in Task scheduler
+            command_text_ = 'SchTasks /Create /SC daily /TN '
+            command_title_ = title_
+            command_text_1 = ' /TR "cmd.exe /c '
+            command_command = cmd_
+            command_time_ = time_
+            command_date_ = f" /sd {date_}"
+
+            Task_Schedual_Command = command_text_ + '"' + command_title_ + '"' + command_text_1 + command_command + '"' + f" /ST {command_time_}" + command_date_
+            self.run_schtask_cmd(Task_Schedual_Command)
         
             #empty felds
             self.title.delete(0,tk.END)
