@@ -1,3 +1,3 @@
 # tasks
 
-Tasks is a simple GUi create new Tasks in "Task Scheduler" in windows. 
+Tasks is a simple GUI to create a new Task in "Task Scheduler" for windows. 
