@@ -91,10 +91,10 @@ class Tasks:
 
         self.scroll_bar = ttk.Scrollbar(self.frame_table_compo,orient="vertical")
 
-        self.cols = ("Title","Message","CMD","Date","Time","Status")
+        self.cols = ("Task Name","Description","CMD","Date","Time","Status")
         self.tree_view = ttk.Treeview(self.frame_table_compo,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
-        self.tree_view.column("Title",width=100,anchor="center")
-        self.tree_view.column("Message",width=170,anchor="w")
+        self.tree_view.column("Task Name",width=100,anchor="center")
+        self.tree_view.column("Description",width=170,anchor="w")
         self.tree_view.column("CMD",width=70,anchor="center")
         self.tree_view.column("Date",width=70,anchor="center")
         self.tree_view.column("Time",width=70,anchor="center")
