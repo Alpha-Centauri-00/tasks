@@ -33,9 +33,9 @@ class Tasks:
         
         self.root.tk.call("source",r"forest-dark.tcl")
         self.style.theme_use("forest-dark")
-        self.style.configure('TLabelframe.Label', foreground ='#00936a')
-        self.style.configure('TLabelframe.Label', font=('courier', 12, 'bold'))
-        self.style.configure("Treeview.Heading", foreground="#00936a",font=('courier', 12, 'bold')) # foreground="white"
+        self.style.configure('TLabelframe.Label', foreground ='#00946A')
+        self.style.configure('TLabelframe.Label', font=('Arial', 12, 'bold'))
+        self.style.configure("Treeview.Heading", foreground="#00946A",font=('Arial', 12, 'bold')) # foreground="white"
         self.style.map("TButton",foreground=[("disabled", "#807777")])
         self.style.map("TEntry",foreground=[("disabled", "white")])
 
