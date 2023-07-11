@@ -1,5 +1,4 @@
 import datetime
-#import openpyxl
 import tkinter as tk
 from tkcalendar import *
 from tkinter import ttk, messagebox
@@ -49,9 +48,9 @@ class Tasks:
         self.frame_compo.grid(row=0,column=0,padx=15,pady=25)
 
         ## Create Entries
-        self.title = self.create_entry_element(self.frame_compo,"label","Task Name",0,0)     ## Title Entry
-        self.message = self.create_entry_element(self.frame_compo,"text","Description",1,0)    ## Message TextBox
-        self.cmd = self.create_entry_element(self.frame_compo,"label","Command",3,0)   ## CMD Entry
+        self.title = self.create_entry_element(self.frame_compo,"label","Task Name",0,0)
+        self.message = self.create_entry_element(self.frame_compo,"text","Description",1,0)
+        self.cmd = self.create_entry_element(self.frame_compo,"label","Command",3,0)
 
         self.title_  = tk.StringVar()
         self.title['textvariable'] = self.title_
@@ -106,9 +105,6 @@ class Tasks:
         self.frame_under_table = ttk.Frame(self.frame_table_compo)
         self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
 
-        # self.create_task_btn = ttk.Button(self.frame_under_table,text="Update Task",command=self.create_task)
-        # self.create_task_btn.grid(row=0,column=0,padx=10,pady=10)
-
         self.run_task_btn = ttk.Button(self.frame_under_table,text="Run Task",command=self.run_task)
         self.run_task_btn.grid(row=0,column=1,padx=10,pady=10)
 
@@ -135,22 +131,6 @@ class Tasks:
         except subprocess.CalledProcessError as e:
             error_message = e.output.decode().strip()
             messagebox.showerror("Error!!",error_message)
-
-    # def create_task(self):
-    #     if self.check_item_selected():
-    #         selected_item = self.tree_view.focus()
-    #         values = self.tree_view.item(selected_item)["values"]
-            
-    #         text_ = 'SchTasks /Create /SC daily /TN '
-    #         title_ = values[0]
-    #         text_1 = ' /TR "cmd.exe /c '
-    #         command = values[2]
-    #         time_ = values[4]
-    #         date_ = f" /sd {values[3]}"
-
-    #         Task_Schedual_Command = text_ + '"' + title_ + '"' + text_1 + command + '"' + f" /ST {time_}" + date_
-    #         self.run_schtask_cmd(Task_Schedual_Command)
-    #     return
 
     def _state(self,*_):
         '''Change btn state by just filling in the task name'''
@@ -183,14 +163,9 @@ class Tasks:
             cmd_ = self.cmd.get()
             date_ = self.entry_date.get()
             time_ = self.entry_time.get()
-            ##  ##  ##  ##  ##  ##  ##  ##
-            # path = self.sheet_path
-            # workbook = openpyxl.load_workbook(path)
-            # sheet = workbook.active
-            add_row_values = [title_,message_,cmd_,date_,time_]
-            # sheet.append(add_row_values)
-            # workbook.save(path)
             
+            add_row_values = [title_,message_,cmd_,date_,time_]
+                        
             #insert in tabel
             self.tree_view.insert('',tk.END,values=add_row_values)
 
@@ -221,21 +196,7 @@ class Tasks:
         else:
             messagebox.showerror("Cant Add Task","Task name should be unique!")
         
-    def load_table(self):
-        
-        # path = self.sheet_path
-        # workbook = openpyxl.load_workbook(path)
-        # sheet = workbook.active
-        # list_values = list(sheet.values)
-        # for col_name in list_values[0]:
-        #     self.tree_view.heading(col_name,text=col_name)
-        # for value_tuple in list_values[1:]:
-        #     self.tree_view.insert("",tk.END,values=value_tuple)
-
-
-        # command = "schtasks /query /FO list | findstr test"
-        # subprocess.run(command, shell=True, check=True)
-        
+    def load_table(self):       
 
         for col_name in self.cols:
             self.tree_view.heading(col_name,text=col_name)
@@ -246,18 +207,15 @@ class Tasks:
             result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
 
             
-            output = result.stdout  # Capture the output and remove leading/trailing whitespaces
+            output = result.stdout  
             tasks_names = output.replace("TaskName:      \\","").split("\n")
             for name in tasks_names:
-                #name = self.run_schtasks_for_infos(name,"Task Name:")
                 
                 comments = self.run_schtasks_for_infos(name,"Comment:")
                 cmd_task = self.run_schtasks_for_infos(name,"Task To Run:")
                 status = self.run_schtasks_for_infos(name,"Status:")
                 date = self.run_schtasks_for_infos(name,"Start Date:")
                 time = self.run_schtasks_for_infos(name,"Start Time:")
-
-                
 
                 self.tree_view.insert("","end",values=(
                     name[5:],
@@ -267,34 +225,8 @@ class Tasks:
                     time.replace("Start Time:                           ","").strip(),
                     status.replace("Status:                               ","").strip()))
                 
-
-                # comment = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Comment:"'
-                # res_comment = subprocess.run(comment, shell=True, check=True, capture_output=True, text=True)
-                # status =  f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Status:"'
-                # res_status = subprocess.run(status, shell=True, check=True, capture_output=True, text=True)
-                # date = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Start Date:"'
-                # time = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Start Time:"'
-            #out = output.split(": ",1)
-            #print(out[1][11:])
-
-            # for row in output.split("\n"):
-            #     #col = row.split()
-            #     print(row[3])
-                #self.tree_view.insert("","end",values=(col[0],"","",col[1],col[2],col[3]))
-                
         except subprocess.CalledProcessError as e:
-            print(f"Error in {e}")
-            
-
-        # for row in output.strip("\n"):
-        #     self.tree_view.insert("","end",values=(row[0],"","",row[1],row[2],row[3]))
-
-        # Print the output
-        
-
-
-        #query = self.run_schtask_cmd("schtasks /query /FO table | findstr test")
-        
+            print(f"Error in {e}")        
 
     def run_schtasks_for_infos(self,task_name,command_type):
         
@@ -314,16 +246,6 @@ class Tasks:
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
 
             if confirm:
-        
-                # workbook = openpyxl.load_workbook(self.sheet_path)
-                # worksheeet = workbook.active
-                #print(f"This is a deleted item {values[0]}")
-
-                # for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
-                #     if search_value in row:
-                    
-                #         worksheeet.delete_rows(row_index)
-                #         workbook.save(self.sheet_path)
                 
                 self.tree_view.delete(selected_item)
                 try:
