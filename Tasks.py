@@ -163,8 +163,9 @@ class Tasks:
             cmd_ = self.cmd.get()
             date_ = self.entry_date.get()
             time_ = self.entry_time.get()
+            ready_ = "Ready"
             
-            add_row_values = [title_,message_,cmd_,date_,time_]
+            add_row_values = [title_,message_,cmd_,date_,time_,ready_]
                         
             #insert in tabel
             self.tree_view.insert('',tk.END,values=add_row_values)
@@ -174,7 +175,6 @@ class Tasks:
             command_title_ = "test_" + title_
             command_text_1 = ' /TR "cmd.exe /c '
             command_command = cmd_
-            command_des = f'/RU {self.message.get("1.0", tk.END)}'
             command_time_ = time_
             command_date_ = f" /sd {date_}"
 
