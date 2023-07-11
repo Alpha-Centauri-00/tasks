@@ -1,5 +1,5 @@
 import datetime
-import openpyxl
+#import openpyxl
 import tkinter as tk
 from tkcalendar import *
 from tkinter import ttk, messagebox
@@ -93,7 +93,7 @@ class Tasks:
 
         self.cols = ("Task Name","Description","CMD","Date","Time","Status")
         self.tree_view = ttk.Treeview(self.frame_table_compo,show="headings",columns=self.cols,height=20,yscrollcommand=self.scroll_bar.set)
-        self.tree_view.column("Task Name",width=100,anchor="center")
+        self.tree_view.column("Task Name",width=100,anchor="w")
         self.tree_view.column("Description",width=190,anchor="w")
         self.tree_view.column("CMD",width=170,anchor="center")
         self.tree_view.column("Date",width=170,anchor="center")
@@ -122,7 +122,7 @@ class Tasks:
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
-            command = f"SchTasks /run /tn \"{values[0]}\""
+            command = f"SchTasks /run /tn \"test_{values[0]}\""
 
             self.run_schtask_cmd(command)         
         return
@@ -165,10 +165,12 @@ class Tasks:
         return False
 
     def check_Task_name_match(self):
-        entry_text = self.title.get().lower()
+        entry_text = "test_" +self.title.get().lower() 
 
         for item in self.tree_view.get_children():
-            item_value = self.tree_view.item(item)["values"][0].lower()
+            item_value = "test_" + self.tree_view.item(item)["values"][0].lower()
+            print(f"entry text = {entry_text}")
+            print(f"item value = {item_value}")
             if entry_text == item_value:
                 return False
         return True
@@ -182,27 +184,36 @@ class Tasks:
             date_ = self.entry_date.get()
             time_ = self.entry_time.get()
             ##  ##  ##  ##  ##  ##  ##  ##
-            path = self.sheet_path
-            workbook = openpyxl.load_workbook(path)
-            sheet = workbook.active
+            # path = self.sheet_path
+            # workbook = openpyxl.load_workbook(path)
+            # sheet = workbook.active
             add_row_values = [title_,message_,cmd_,date_,time_]
-            sheet.append(add_row_values)
-            workbook.save(path)
+            # sheet.append(add_row_values)
+            # workbook.save(path)
             
             #insert in tabel
             self.tree_view.insert('',tk.END,values=add_row_values)
 
             # save in Task scheduler
             command_text_ = 'SchTasks /Create /SC daily /TN '
-            command_title_ = title_
+            command_title_ = "test_" + title_
             command_text_1 = ' /TR "cmd.exe /c '
             command_command = cmd_
+            command_des = f'/RU {self.message.get("1.0", tk.END)}'
             command_time_ = time_
             command_date_ = f" /sd {date_}"
 
             Task_Schedual_Command = command_text_ + '"' + command_title_ + '"' + command_text_1 + command_command + '"' + f" /ST {command_time_}" + command_date_
             self.run_schtask_cmd(Task_Schedual_Command)
         
+
+            task_name = "test_" + title_
+            new_description = message_
+
+            # Set the task description using PowerShell
+            powershell_command = f"$task = Get-ScheduledTask '{task_name}'; $task.Description = '{new_description}'; $task | Set-ScheduledTask"
+            subprocess.run(["powershell", "-Command", powershell_command])
+
             #empty felds
             self.title.delete(0,tk.END)
             self.message.delete("1.0", tk.END)
@@ -212,14 +223,85 @@ class Tasks:
         
     def load_table(self):
         
-        path = self.sheet_path
-        workbook = openpyxl.load_workbook(path)
-        sheet = workbook.active
-        list_values = list(sheet.values)
-        for col_name in list_values[0]:
+        # path = self.sheet_path
+        # workbook = openpyxl.load_workbook(path)
+        # sheet = workbook.active
+        # list_values = list(sheet.values)
+        # for col_name in list_values[0]:
+        #     self.tree_view.heading(col_name,text=col_name)
+        # for value_tuple in list_values[1:]:
+        #     self.tree_view.insert("",tk.END,values=value_tuple)
+
+
+        # command = "schtasks /query /FO list | findstr test"
+        # subprocess.run(command, shell=True, check=True)
+        
+
+        for col_name in self.cols:
             self.tree_view.heading(col_name,text=col_name)
-        for value_tuple in list_values[1:]:
-            self.tree_view.insert("",tk.END,values=value_tuple)
+
+        try:
+
+            command = 'schtasks /query /FO list | findstr "test_*"'
+            result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+
+            
+            output = result.stdout  # Capture the output and remove leading/trailing whitespaces
+            tasks_names = output.replace("TaskName:      \\","").split("\n")
+            for name in tasks_names:
+                #name = self.run_schtasks_for_infos(name,"Task Name:")
+                
+                comments = self.run_schtasks_for_infos(name,"Comment:")
+                cmd_task = self.run_schtasks_for_infos(name,"Task To Run:")
+                status = self.run_schtasks_for_infos(name,"Status:")
+                date = self.run_schtasks_for_infos(name,"Start Date:")
+                time = self.run_schtasks_for_infos(name,"Start Time:")
+
+                
+
+                self.tree_view.insert("","end",values=(
+                    name[5:],
+                    comments.replace("Comment:                              ","").strip(),
+                    cmd_task.replace("Task To Run:                          cmd.exe /c ","").split(),
+                    date.replace("Start Date:                           ","").strip(),
+                    time.replace("Start Time:                           ","").strip(),
+                    status.replace("Status:                               ","").strip()))
+                
+
+                # comment = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Comment:"'
+                # res_comment = subprocess.run(comment, shell=True, check=True, capture_output=True, text=True)
+                # status =  f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Status:"'
+                # res_status = subprocess.run(status, shell=True, check=True, capture_output=True, text=True)
+                # date = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Start Date:"'
+                # time = f'schtasks /query /TN "{name}" /FO LIST /V | findstr /C:"Start Time:"'
+            #out = output.split(": ",1)
+            #print(out[1][11:])
+
+            # for row in output.split("\n"):
+            #     #col = row.split()
+            #     print(row[3])
+                #self.tree_view.insert("","end",values=(col[0],"","",col[1],col[2],col[3]))
+                
+        except subprocess.CalledProcessError as e:
+            print(f"Error in {e}")
+            
+
+        # for row in output.strip("\n"):
+        #     self.tree_view.insert("","end",values=(row[0],"","",row[1],row[2],row[3]))
+
+        # Print the output
+        
+
+
+        #query = self.run_schtask_cmd("schtasks /query /FO table | findstr test")
+        
+
+    def run_schtasks_for_infos(self,task_name,command_type):
+        
+        command_name = f'schtasks /query /TN "{task_name}" /FO LIST /V | findstr /C:"{command_type}"'
+        res_comment = subprocess.run(command_name, shell=True, check=True, capture_output=True, text=True)
+        
+        return res_comment.stdout
 
     def delete_a_row(self):
 
@@ -227,27 +309,32 @@ class Tasks:
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
+            #print(values)
 
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
 
             if confirm:
         
-                workbook = openpyxl.load_workbook(self.sheet_path)
-                worksheeet = workbook.active
-                search_value = values[0]
-                self.tree_view.delete(selected_item)
+                # workbook = openpyxl.load_workbook(self.sheet_path)
+                # worksheeet = workbook.active
+                #print(f"This is a deleted item {values[0]}")
 
-                for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
-                    if search_value in row:
+                # for row_index, row in enumerate(worksheeet.iter_rows(values_only=True), start=1):
+                #     if search_value in row:
                     
-                        worksheeet.delete_rows(row_index)
-                        workbook.save(self.sheet_path)
-                print(f"Task '{values[0]}' deleted successfully")
+                #         worksheeet.delete_rows(row_index)
+                #         workbook.save(self.sheet_path)
+                
+                self.tree_view.delete(selected_item)
                 try:
                     
-                    command = f'schtasks /delete /tn \"{values[0]}\" /F'
+                    
+                    command = f'schtasks /delete /tn \"test_{values[0]}\" /F'
                     subprocess.run(command, shell=True, check=True)               
-                
+
+                    print(f"Task '{values[0]}' deleted successfully")
+                    
+
                 except subprocess.CalledProcessError as e:
                     # Capture and show the error message in a messagebox
                     error_message = e.stderr
