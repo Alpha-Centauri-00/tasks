@@ -145,8 +145,7 @@ class Tasks:
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
             if values[-1] != "Disabled":    
-                selected_item = self.tree_view.focus()
-                values = self.tree_view.item(selected_item)["values"]
+                                
                 command = f"SchTasks /run /tn \"test_{values[0]}\""
 
                 self.run_schtask_cmd(command)         
