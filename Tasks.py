@@ -179,8 +179,7 @@ class Tasks:
 
         for item in self.tree_view.get_children():
             item_value = "test_" + self.tree_view.item(item)["values"][0].lower()
-            print(f"entry text = {entry_text}")
-            print(f"item value = {item_value}")
+            
             if entry_text == item_value:
                 return False
         return True
@@ -224,7 +223,7 @@ class Tasks:
 
             # Set the task description using PowerShell
             powershell_command = f"$task = Get-ScheduledTask '{task_name}'; $task.Description = '{new_description}'; $task | Set-ScheduledTask"
-            subprocess.run(["powershell", "-Command", powershell_command])
+            subprocess.run(["powershell", "-Command", powershell_command], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
             #empty felds
             self.title.delete(0,tk.END)
@@ -288,13 +287,9 @@ class Tasks:
                     command = f'schtasks /delete /tn \"test_{values[0]}\" /F'
                     subprocess.run(command, shell=True, check=True)               
 
-                    print(f"Task '{values[0]}' deleted successfully")
-                    
-
                 except subprocess.CalledProcessError as e:
                     # Capture and show the error message in a messagebox
-                    error_message = e.stderr
-                    print(error_message)
+                    raise (e.stderr)
         return
 
     def create_entry_element(self,parent_frame,type,text_value,row_num,col_num):
@@ -311,6 +306,8 @@ class Tasks:
 
     def select_date_time(self):
             
+        self.frame_table_compo.grid_columnconfigure(0,weight=1)
+    
         # Disable Button Select EID
         self.btn_select_date_time.configure(state=tk.DISABLED)
         
@@ -384,6 +381,8 @@ class Tasks:
         self.button_select_date_time_cancel = ttk.Button(master=self.top_level_date_time, text="Cancel", command=self.post_top_level_select_date_time)
         self.button_select_date_time_cancel.grid(row=2, column=0, padx=60, pady=15, sticky='se')
 
+        self.frame.grid_propagate(False)
+        self.frame_table_compo.grid_propagate(False)
 
     # Post Top Level Select Date Time
     def post_top_level_select_date_time(self):
