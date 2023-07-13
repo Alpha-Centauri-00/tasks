@@ -105,6 +105,9 @@ class Tasks:
         self.frame_under_table = ttk.Frame(self.frame_table_compo)
         self.frame_under_table.grid(row=1,column=0,padx=10,pady=10)
 
+        self.status_switch = ttk.Button(self.frame_under_table, text="Change Status",  command=self.toggle_status)
+        self.status_switch.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
+
         self.run_task_btn = ttk.Button(self.frame_under_table,text="Run Task",command=self.run_task)
         self.run_task_btn.grid(row=0,column=1,padx=10,pady=10)
 
@@ -113,14 +116,42 @@ class Tasks:
 
         self.load_table()
 
+
+    def toggle_status(self,event=None):
+                
+        if self.check_item_selected():
+            selected_item = self.tree_view.focus()
+            values = self.tree_view.item(selected_item)["values"]
+            if values[-1] == "Disabled":
+
+                if self.confirmation_msg(title="Confirmation",message=f"Are you sure you want to Enable '{values[0]}' Task?"):
+                                    
+                    command = f'schtasks /change /tn "test_{values[0]}" /ENABLE'
+                    self.run_schtask_cmd(command)
+                    self.load_table()
+
+            elif values[-1] == "Ready":
+
+                if self.confirmation_msg(title="Confirmation",message=f"Are you sure you want to Disable '{values[0]}' Task?"):
+                                    
+                    command = f'schtasks /change /tn "test_{values[0]}" /DISABLE'
+                    self.run_schtask_cmd(command)
+                    
+                    self.load_table()
+
     def run_task(self):
         '''Running a Task by name'''
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
-            command = f"SchTasks /run /tn \"test_{values[0]}\""
+            if values[-1] != "Disabled":    
+                selected_item = self.tree_view.focus()
+                values = self.tree_view.item(selected_item)["values"]
+                command = f"SchTasks /run /tn \"test_{values[0]}\""
 
-            self.run_schtask_cmd(command)         
+                self.run_schtask_cmd(command)         
+            else:
+                messagebox.showerror("Error","You can not run Disabled Task!")
         return
 
     def run_schtask_cmd(self,commando):
@@ -155,6 +186,13 @@ class Tasks:
                 return False
         return True
 
+    def confirmation_msg(self,title,message):
+        confirm = messagebox.askyesno(title,message)
+        return confirm
+
+    def is_treeview_empty(self):
+        return len(self.tree_view.get_children()) == 0
+    
     def save_data(self):
         if self.check_Task_name_match():
             title_ = self.title.get()
@@ -202,7 +240,7 @@ class Tasks:
             self.tree_view.heading(col_name,text=col_name)
 
         try:
-
+            self.tree_view.delete(*self.tree_view.get_children())
             command = 'schtasks /query /FO list | findstr "test_*"'
             result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
 
@@ -226,7 +264,7 @@ class Tasks:
                     status.replace("Status:                               ","").strip()))
                 
         except subprocess.CalledProcessError as e:
-            print(f"Error in {e}")        
+            pass      
 
     def run_schtasks_for_infos(self,task_name,command_type):
         
@@ -241,11 +279,8 @@ class Tasks:
         if self.check_item_selected():
             selected_item = self.tree_view.focus()
             values = self.tree_view.item(selected_item)["values"]
-            #print(values)
-
-            confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to Delete the task '{values[0]}'?")
-
-            if confirm:
+            
+            if self.confirmation_msg(title="Confirmation",message=f"Are you sure you want to Delete the task '{values[0]}'?"):
                 
                 self.tree_view.delete(selected_item)
                 try:
