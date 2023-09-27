@@ -13,6 +13,6 @@ Colone this repo and start the Task.py file
 <br>
 
 ```bash
-python Task.py
+python Tasks.py
 ```
 Have fun!
