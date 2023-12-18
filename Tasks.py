@@ -114,6 +114,9 @@ class Tasks:
         self.delete_row_btn = ttk.Button(self.frame_under_table,text="Delete Task",command=self.delete_a_row)
         self.delete_row_btn.grid(row=0,column=2,padx=10,pady=10)
 
+        self.refresh_table = ttk.Button(self.frame_under_table,text="Refresh Table",command=self.load_table)
+        self.refresh_table.grid(row=0,column=3,padx=10,pady=10)
+
         self.load_table()
 
 
